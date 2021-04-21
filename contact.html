@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset='utf-8'>
+  <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+  <title>Page Title</title>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
+  <script src='main.js'></script>
+  <script>
+    function getBrowser() {
+      var browser = 'unknown';
+      var ua = navigator.userAgent;
+      if ((ua.indexOf("Opera") || ua.indexOf('OPR')) != -1) {
+        browser = 'Opera'
+      } else if (ua.indexOf("Edge") != -1) {
+        browser = 'Edge'
+      } else if (ua.indexOf("Chrome") != -1) {
+        browser = 'Chrome'
+      } else if (ua.indexOf("Safari") != -1) {
+        browser = 'Safari'
+      } else if (ua.indexOf("Firefox") != -1) {
+        browser = 'Firefox'
+      } else if ((ua.indexOf("MSIE") != -1) || (!!document.documentMode == true)) //IF IE > 10
+      {
+        browser = 'IE'
+      } else {
+        browser = 'unknown'
+      }
+      return browser;
+    }
+
+    function trackEvent(data) {
+      // Maybe add some extra info to data here
+      // data.url = window.location.href;
+      var endpoint = "http://localhost:5000/image";
+      var encoded = btoa(JSON.stringify(data)); // Base64 encoded
+      var trackData = endpoint + "?data=" + encoded;
+      var pixel = new Image();
+      pixel.src = trackData; // never append the image
+    }
+    trackEvent({
+      event: 'pageView',
+      url: window.location.href,
+      browser: getBrowser(),
+      resolution: {
+        width: screen.width,
+        height: screen.height
+      }
+    });
+  </script>
+</head>
+
+<body>
+  <h1>Contact page</h1>
+
+
+
+  <a href="index.html">Index</a>
+</body>
+
+</html>
