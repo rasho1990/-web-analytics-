@@ -2,6 +2,7 @@ const express = require('express');
 const session = require('express-session');
 const mongoose = require('mongoose');
 const userRouter = require('./routes/userRouter.js');
+const trackingRouter = require('./routes/trackingRouter');
 // Package documentation - http://www.npm.com/package/connect-mongo
 
 const MongoStore = require('connect-mongo')(session);
@@ -13,9 +14,11 @@ const app = express();
 const dbString = `mongodb+srv://manu:5jltYkJttJkaxXBg@cluster0-c0hbd.mongodb.net/web_analytics?retryWrites=true&w=majority`;
 const dbOptions = {
   useNewUrlParser: true,
-  useUnifiedTopology: true
+  useUnifiedTopology: true,
 }
 const connection = mongoose.createConnection(dbString, dbOptions);
+mongoose.connect(`mongodb+srv://manu:5jltYkJttJkaxXBg@cluster0-c0hbd.mongodb.net/web_analytics?retryWrites=true&w=majority`,
+  { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true })
 // Middlewares
 
 app.use(express.static('public'))
@@ -37,20 +40,20 @@ app.use(session({
     maxAge: 1000 * 60 * 60 * 24 // Equals 1 Day 
   }
 }));
-app.use('/api/image', userRouter);
-app.use('/api', userRouter);
 
 // SNIPPET ROUTES ⬇
 // The snippet code requests this url, and sends some parameters/variables along so that
 // we can track the visitor from page to page
 // Consumer: everybody who visits a website where the tracker snippet is included
 
-//-------------------------------------------------------------
+app.use('/api', userRouter);//api router
 
-// // API ROUTES ⬇
-// // To get data from the API/database to render charts
-// // Nuxt application is going to request the API to get data to render charts
-// // Consumer: Nuxt analytics front-end
+// API ROUTES ⬇
+// To get data from the API/database to render charts
+// Nuxt application is going to request the API to get data to render charts
+// Consumer: Nuxt analytics front-end
+
+app.use('/image', trackingRouter)// tracking router 
 
 
 const PORT = process.env.PORT || 5000;
