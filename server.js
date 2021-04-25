@@ -4,12 +4,15 @@ const mongoose = require('mongoose');
 const userRouter = require('./routes/userRouter.js');
 const trackingRouter = require('./routes/trackingRouter');
 // Package documentation - http://www.npm.com/package/connect-mongo
-
+const cors = require('cors');
 const MongoStore = require('connect-mongo')(session);
 
 //create the express application
 const app = express();
 
+
+//enables cors
+app.use(cors());
 //<user>:<password>@
 const dbString = `mongodb+srv://manu:5jltYkJttJkaxXBg@cluster0-c0hbd.mongodb.net/web_analytics?retryWrites=true&w=majority`;
 const dbOptions = {

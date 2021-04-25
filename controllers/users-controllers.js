@@ -2,8 +2,7 @@ const { validationResult } = require('express-validator');
 const HttpError = require('./../models/http-error');
 const atob = require('atob');
 const Visitor = require('./../models/Visitor');
-
-
+const path = require('path');
 const createUser = async (req, res, next) => {
 
 };
@@ -30,7 +29,7 @@ const createSnippt = async (req, res, next) => {
     const newUser = new Visitor({
         session: req.sessionID,
         name: 'rasho',
-        email: 'm.rasho90@gmail.com',
+        email: 'm1.rasho90@gmail.com',
         password: '123456',
         url: '5000',
         browser: 'test',
@@ -52,9 +51,9 @@ const createSnippt = async (req, res, next) => {
 
     const modifiedUser = newUser.toObject({ getters: true });
 
-    res
-        .status(201)
-        .json({ userId: modifiedUser.id, email: modifiedUser.email, token });
+    res.sendFile(path.resolve('Public/image.jpg'));
+    // .status(201)
+    // .json({ userId: modifiedUser.id, email: modifiedUser.email, token });
 }
 const getNumOfVisits = async (req, res, next) => {
     req.session.viewCount += 1;

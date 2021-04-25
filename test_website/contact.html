@@ -9,6 +9,8 @@
   <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
   <script src='main.js'></script>
   <script>
+    let x = 0;
+
     function getBrowser() {
       var browser = 'unknown';
       var ua = navigator.userAgent;
@@ -31,9 +33,18 @@
       return browser;
     }
 
+    function trackClick() {
+      var el = document.querySelector("h1");
+
+      el.addEventListener("click", function () {
+        x++;
+        console.log("h1 was clicked!:" + x);
+      }, false);
+      return x;
+    }
+
     function trackEvent(data) {
       // Maybe add some extra info to data here
-      // data.url = window.location.href;
       var endpoint = "http://localhost:5000/image";
       var encoded = btoa(JSON.stringify(data)); // Base64 encoded
       var trackData = endpoint + "?data=" + encoded;
@@ -47,7 +58,8 @@
       resolution: {
         width: screen.width,
         height: screen.height
-      }
+      },
+      num: trackClick()
     });
   </script>
 </head>
