@@ -5,9 +5,16 @@ const visitorSchema = new Schema({
   name: { type: String, required: false },
   email: { type: String, required: false, unique: false },
   password: { type: String, required: false, minlength: 5 },
-  url: { type: String, required: true },
-  browser: { type: String, required: true },
-  resolution: { type: Object, required: true }
+  url: { type: String, required: false },
+  browser: { type: String, required: false },
+  resolution: { type: Object, required: false },
+  events: [
+    {
+      type: mongoose.Types.ObjectId, // Id of related model
+      required: true,
+
+      ref: 'Event',
+    }]
 });
 
 

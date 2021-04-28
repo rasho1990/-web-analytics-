@@ -33,7 +33,6 @@
 
     function trackEvent(data) {
       // Maybe add some extra info to data here
-      // data.url = window.location.href;
       var endpoint = "http://localhost:5000/image";
       var encoded = btoa(JSON.stringify(data)); // Base64 encoded
       var trackData = endpoint + "?data=" + encoded;

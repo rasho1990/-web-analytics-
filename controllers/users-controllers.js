@@ -2,46 +2,65 @@ const { validationResult } = require('express-validator');
 const HttpError = require('./../models/http-error');
 const atob = require('atob');
 const Visitor = require('./../models/Visitor');
+const Event = require('../models/Event');
 const path = require('path');
-const createUser = async (req, res, next) => {
 
-};
 const createSnippt = async (req, res, next) => {
-    // Find Visitor based on domain and req.session.id
-    // If exists, upadte data of visitor
-    // If doesn't exists: create new visitor document with trakcing data (browser, resolution, ...)
     // After that also insert a tracking entry with: date/time, current url
-    //console.log(req.get('Referer'));
-
     console.log('got a request from /image');
     console.log(req.sessionID)
-    var decodedStringAtoB = atob(req.query.data);
+    let decodedStringAtoB = atob(req.query.data);
+    let jsonData = JSON.parse(decodedStringAtoB);
     console.log(decodedStringAtoB);
-
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         const error = new HttpError('Make sure to pass in the correct data!', 422);
         return next(error);
     }
-
-
-    // Create new user
-    const newUser = new Visitor({
-        session: req.sessionID,
-        name: 'rasho',
-        email: 'm1.rasho90@gmail.com',
-        password: '123456',
-        url: '5000',
-        browser: 'test',
-        resolution: '0'
-    });
-
-    let token;
     try {
-        // Save user
-        await newUser.save();
+        // Check if visitor already exists and update it if not it will create a new document
+        const userExists = await Visitor.findOneAndUpdate({
+            session: req.sessionID
+        }, {
+            session: req.sessionID,
+            name: jsonData.email,
+            email: jsonData.email,
+            password: jsonData.password,
+            url: jsonData.url,
+            browser: jsonData.browser,
+            resolution: jsonData.resolution
+        }
+            , {
+                useFindAndModify: false,
+                new: true,
+                upsert: true,
+                rawResult: true
+            });
+        const eventExists = await Event.findOneAndUpdate({
+            creator: userExists.value.id
+        }, {
+            name: jsonData.event,
+            data: { amount: jsonData.amount },
+            creator: userExists.value.id
+        }
+            , {
+                useFindAndModify: false,
+                new: true,
+                upsert: true,
+                rawResult: true
+            });
+        await Visitor.findOneAndUpdate({
+            session: req.sessionID
+        }, {
+            events: eventExists.value.id
+        }
+            , {
+                useFindAndModify: false,
+                new: true,
+                upsert: true,
+                rawResult: true
+            });
     } catch (err) {
-        console.log(err);
         const error = new HttpError(
             'Something went wrong, could not create user!',
             500
@@ -49,11 +68,7 @@ const createSnippt = async (req, res, next) => {
         return next(error);
     }
 
-    const modifiedUser = newUser.toObject({ getters: true });
-
     res.sendFile(path.resolve('Public/image.jpg'));
-    // .status(201)
-    // .json({ userId: modifiedUser.id, email: modifiedUser.email, token });
 }
 const getNumOfVisits = async (req, res, next) => {
     req.session.viewCount += 1;
