@@ -18,49 +18,20 @@ const createSnippt = async (req, res, next) => {
         return next(error);
     }
     try {
-        // Check if visitor already exists and update it if not it will create a new document
-        const userExists = await Visitor.findOneAndUpdate({
-            session: req.sessionID
-        }, {
-            session: req.sessionID,
-            name: jsonData.email,
-            email: jsonData.email,
-            password: jsonData.password,
-            url: jsonData.url,
-            browser: jsonData.browser,
-            resolution: jsonData.resolution
-        }
-            , {
-                useFindAndModify: false,
-                new: true,
-                upsert: true,
-                rawResult: true
+        const visitor = await Visitor.findOne({ session: req.sessionID });
+        if (!visitor) {
+            // There is no visitor yet, let's create one
+            visitor = await Visitor.create({
+                session: req.sessionID
             });
-        const eventExists = await Event.findOneAndUpdate({
-            creator: userExists.value.id
-        }, {
-            name: jsonData.event,
-            data: { amount: jsonData.amount },
-            creator: userExists.value.id
         }
-            , {
-                useFindAndModify: false,
-                new: true,
-                upsert: true,
-                rawResult: true
-            });
-        await Visitor.findOneAndUpdate({
-            session: req.sessionID
-        }, {
-            events: eventExists.value.id
-        }
-            , {
-                useFindAndModify: false,
-                new: true,
-                upsert: true,
-                rawResult: true
-            });
+
+        const event = await Event.create({
+            visitorId: visitor.id,
+            name: jsonData.event
+        });
     } catch (err) {
+        console.log(err)
         const error = new HttpError(
             'Something went wrong, could not create user!',
             500
@@ -71,15 +42,19 @@ const createSnippt = async (req, res, next) => {
     res.sendFile(path.resolve('Public/image.jpg'));
 }
 const getNumOfVisits = async (req, res, next) => {
-    req.session.viewCount += 1;
-
-    res.send({ viewCount: req.session.viewCount, id: req.sessionID })
-    req.session.save(function (err) {
-        if (!err) {
-            //Data get lost here
-            res.redirect("http://localhost:5000/api");
-        }
-    });
+    console.log('got a request from the frontend')
+    let allVisitors;
+    try {
+        allVisitors = await Event.find({})
+    } catch (err) {
+        const error = new HttpError("Something went wrong, could not find comments.", 500);
+        return next(error);
+    }
+    if (!allVisitors) {
+        const error = new HttpError("Could not find comments for the provided place.", 404);
+        return next(error);
+    }
+    res.json({ allVisitors })
 
 }
 

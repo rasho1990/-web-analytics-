@@ -31,14 +31,14 @@
       return browser;
     }
 
-
     function trackEvent(data) {
       data.url = window.location.href;
+      data.numberOfOccurrence=data;
       // Maybe add some extra info to data here
-      var endpoint = "http://localhost:5000/image";
-      var encoded = btoa(JSON.stringify(data)); // Base64 encoded
-      var trackData = endpoint + "?data=" + encoded;
-      var pixel = new Image();
+      let endpoint = "http://localhost:5000/image";
+      let encoded = btoa(JSON.stringify(data)); // Base64 encoded
+      let trackData = endpoint + "?data=" + encoded;
+      let pixel = new Image();
       pixel.src = trackData; // never append the image
     }
     trackEvent({
@@ -48,14 +48,12 @@
         width: screen.width,
         height: screen.height
       },
-
     });
   </script>
 </head>
 
 <body>
   <h1>Contact page</h1>
-
   <a href="index.html"> Index </a>
   <script>
     let x = 0;
