@@ -43,18 +43,26 @@ const createSnippt = async (req, res, next) => {
 }
 const getNumOfVisits = async (req, res, next) => {
     console.log('got a request from the frontend')
-    let allVisitors;
+   
+    let visitorsPerMonth;
     try {
-        allVisitors = await Event.find({})
+        visitorsPerMonth = await Event.aggregate([
+            {
+                $group: {
+                    _id: { $month: "$createdAt" },
+                    visitors: { $sum: 1 },
+                },
+            },
+        ]);
     } catch (err) {
         const error = new HttpError("Something went wrong, could not find comments.", 500);
         return next(error);
     }
-    if (!allVisitors) {
+    if (!visitorsPerMonth) {
         const error = new HttpError("Could not find comments for the provided place.", 404);
         return next(error);
     }
-    res.json({ allVisitors })
+    res.json({ visitorsPerMonth })
 
 }
 

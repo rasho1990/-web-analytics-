@@ -6,15 +6,23 @@ import { ResponsiveBar } from '@nivo/bar'
 const Pageview = () => {
 
 
-    const [visitors, setVisitors] = useState([]);
-    const [pageViewers, setpageViewers] = useState([]);
+    const [visitors, setVisitors] = useState();
     const { isLoading, error, sendRequest, clearError } = useHttpRequest();
+    const data = (v) => {
+        let dataTemp = [];
+        let months = ["January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"];
+        v.forEach(element => {
+            dataTemp.push({
+                "Time": months[element._id-1],
+                "pageView": element.visitors,
+                "pageViewColor": "hsl(57, 70%, 50%)"
+            })
+        });
+        return dataTemp;
+    }
 
-    const data = [{
-        "Time": 'May',
-        "pageView": pageViewers.length,
-        "pageViewColor": "hsl(109, 70%, 50%)"
-    }];
+
 
 
     const fetchVisitors = async () => {
@@ -26,27 +34,26 @@ const Pageview = () => {
             );
 
             setVisitors(responseData);
-            setpageViewers(responseData.allVisitors.filter(p => p.name === 'pageView'))
+
 
         } catch (err) {
             console.log('Error in fetching users!', err);
         }
 
     };
+
     useEffect(() => {
         fetchVisitors();
+
     }, [sendRequest]);
-
-    console.log(data);
-
     return <React.Fragment>
         {error && <ErrorModal error={error} onClear={clearError} />}
         {isLoading &&
             <div className="ui active inverted dimmer">
                 <div className="ui text loader">Loading</div>
             </div>}
-        {visitors.allVisitors && !error && <div style={{ height: 400 }}> <ResponsiveBar
-            data={data}
+        {visitors && !error && <div style={{ height: 400 }}> <ResponsiveBar
+            data={data(visitors.visitorsPerMonth)}
             keys={['pageView']}
             indexBy="Time"
             margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
